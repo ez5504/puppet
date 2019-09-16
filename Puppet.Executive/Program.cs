@@ -94,6 +94,7 @@ namespace Puppet.Executive
 
         private static void StartRelevantAutomationHandlers(HubEvent evt)
         {
+            Console.WriteLine($"Starting auto handlers");
             // Get a reference to the automation
             var automations = AutomationFactory.GetAutomations(evt, _hub);
 
