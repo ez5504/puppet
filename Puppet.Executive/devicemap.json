@@ -13,11 +13,11 @@
     "FrontDoorDeadbolt": "67"
   },
   "Speaker": {
-    "Alexa-LivingRoom": "72",
-    "Alexa-Bedroom": "73"
+    "KitchenSpeaker": "65",
+    "WebhookNotifier": "401"
   },
   "Switch": {
-    "LivingRoom": "76",
+    "LivingRoom": "5",
     "LivingRoom2": "1",
     "BasementFurnace": "35",
     "BasementWasher": "65"
