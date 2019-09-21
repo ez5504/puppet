@@ -31,6 +31,7 @@ namespace Puppet.Automation
             }
             else
             {
+                await WaitForCancellationAsync(TimeSpan.FromMinutes(1));
                 await _barOutlet.Off();
             }
         }

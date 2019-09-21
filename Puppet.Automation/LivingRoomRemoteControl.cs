@@ -16,6 +16,7 @@ namespace Puppet.Automation
         DimmerSwitchRelay _livingRoomLight;
         LockDevice _frontDoorLock;
         Speaker _alexaLivingRoom;
+        Weather _weather;
 
         public LivingRoomRemoteControl(HomeAutomationPlatform hub, HubEvent evt) : base(hub, evt)
         {
@@ -35,7 +36,7 @@ namespace Puppet.Automation
                         {
                             await _livingRoomLight.SetBrightness(80);
                             await _livingRoomLight.SetColor(12, 80);
-                            await _alexaLivingRoom.Speak("Good morning, Jacob");
+                            await _alexaLivingRoom.Speak($"Good morning Jacob. The current forecast is {_weather.CurrentCondition()}. The temperature outside is {_weather.TemperatureFeelsLike()}.");
                         }
                         else 
                         {
@@ -76,6 +77,7 @@ namespace Puppet.Automation
             _livingRoomLight = await _hub.GetDeviceByMappedName<DimmerSwitchRelay>("Switch.LivingRoom");
             _frontDoorLock = await _hub.GetDeviceByMappedName<LockDevice>("Lock.FrontDoorDeadbolt");
             _alexaLivingRoom = await _hub.GetDeviceByMappedName<Speaker>("Speaker.Alexa-LivingRoom");
+            _weather = await _hub.GetDeviceByMappedName<Weather>("Misc.Weather");
         }
     }
 }

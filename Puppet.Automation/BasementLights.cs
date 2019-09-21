@@ -37,7 +37,6 @@ namespace Puppet.Automation
             }
             else if(_evt.IsActiveEvent && LightsOn)
             {
-                await WaitForCancellationAsync(TimeSpan.FromSeconds(30));
                 await TurnLightsOff();
             }
         }

@@ -7,7 +7,7 @@ pushd Puppet.Executive
 dotnet publish -r linux-arm -c Release
 rm ./bin/Release/netcoreapp2.2/linux-arm/publish/Puppet.Executive.runtimeconfig.json
 echo '{ "runtimeOptions": { "configProperties": { "System.Globalization.Invariant": true } } }' >> ./bin/Release/netcoreapp2.2/linux-arm/publish/Puppet.Executive.runtimeconfig.json
-ssh pi@192.168.1.160 kill -9 Puppet.Executive
+ssh pi@192.168.1.160 pkill Puppet.Executive
 ssh pi@192.168.1.160 rm /home/pi/puppet/*
 scp ./bin/Release/netcoreapp2.2/linux-arm/publish/* pi@192.168.1.160:/home/pi/puppet
 popd 
