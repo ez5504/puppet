@@ -6,12 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Puppet.Executive.Automation
 {
     public class AutomationFactory
     {
         private const string _automationAssembly = "Puppet.Automation.dll";
+
+        private static IMemoryCache MemoryCache;
+
+        static AutomationFactory() 
+        {
+            MemoryCache = new MemoryCache(new MemoryCacheOptions());
+        }
 
         /// <summary>
         /// Figures out the appropriate implementation of IAutomation based on the data in the event and returns it.
@@ -29,9 +37,13 @@ namespace Puppet.Executive.Automation
              *                  and the attribute also names a Capability that matches the device that caused the event
              *          and the count of the matching trigger attributes is greater than 0
              */
-            IEnumerable<Type> typeCollection = Assembly.LoadFrom(_automationAssembly).GetTypes() 
-                .Where(t => typeof(IAutomation).IsAssignableFrom(t) && 
-                    (t.GetCustomAttributes<TriggerDeviceAttribute>() 
+            
+            IEnumerable<Type> assemblies = MemoryCache.GetOrCreate("Assemblies", entry => {
+                return Assembly.LoadFrom(_automationAssembly).GetTypes()
+                    .Where(t => typeof(IAutomation).IsAssignableFrom(t));
+            });
+            IEnumerable<Type> typeCollection = assemblies
+                .Where(t => (t.GetCustomAttributes<TriggerDeviceAttribute>() 
                         .Where(a => hub.LookupDeviceId(a.DeviceMappedName) == evt.DeviceId &&
                             a.Capability.ToString().ToLower() == evt.Name))
                     .Count() > 0);

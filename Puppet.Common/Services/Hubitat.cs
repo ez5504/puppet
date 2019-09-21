@@ -72,7 +72,6 @@ namespace Puppet.Common.Services
                             buffer = new ArraySegment<byte>(new byte[1024 * 4]);
                             WebSocketReceiveResult reply = await client.ReceiveAsync(buffer, CancellationToken.None);
                             string json = System.Text.Encoding.Default.GetString(buffer.ToArray()).TrimEnd('\0');
-                            Console.WriteLine($"Event Received: {json}");
                             HubEvent evt = JsonConvert.DeserializeObject<HubEvent>(json);
                             OnAutomationEvent(new AutomationEventEventArgs() { HubEvent = evt });
                         }

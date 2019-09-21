@@ -328,3 +328,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Local Project Files
+Puppet.Executive/appsettings.json
+Puppet.Executive/*.dll
+Puppet.Executive/*.deps.json

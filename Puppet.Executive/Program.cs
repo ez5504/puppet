@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Puppet.Common.Automation;
 using Puppet.Common.Configuration;
@@ -15,6 +17,7 @@ using Puppet.Common.Services;
 using Puppet.Executive.Automation;
 using Puppet.Executive.Mqtt;
 using Puppet.Common.Telemetry;
+using Puppet.Common.StateManagement;
 
 namespace Puppet.Executive
 {
@@ -34,6 +37,11 @@ namespace Puppet.Executive
                 .SetBasePath(Directory.GetCurrentDirectory()) // Directory where the json files are located
                 .AddJsonFile(APPSETTINGS_FILENAME, optional: false, reloadOnChange: true)
                 .Build();
+
+            var provider = new ServiceCollection()
+                .AddMemoryCache()
+                .AddSingleton<IWeatherData, WeatherData>()
+                .BuildServiceProvider();
 
             // Create an HttpClient that doesn't validate the server certificate
             HttpClientHandler customHttpClientHandler = new HttpClientHandler

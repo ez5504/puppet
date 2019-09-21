@@ -10,6 +10,7 @@ using Puppet.Common.Devices;
 using Puppet.Common.Events;
 using Puppet.Common.Models;
 using Puppet.Common.Telemetry;
+using Puppet.Common.StateManagement;
 
 namespace Puppet.Common.Services
 {
@@ -32,9 +33,7 @@ namespace Puppet.Common.Services
 
         public event EventHandler<AutomationEventEventArgs> AutomationEvent;
 
-#pragma warning disable IDE0060 // Remove unused parameter
         public HomeAutomationPlatform(IConfiguration configuration)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
             this.DeviceMap = JObject.Parse(
                 File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), DEVICE_FILENAME)));
