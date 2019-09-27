@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Puppet.Automation
 {
-    [TriggerDevice("Switch.LivingRoom", Capability.Contact)]
+    [TriggerDevice("Switch.LivingRoom", Capability.Switch)]
     public class BedroomLights : AutomationBase
     {
         DimmerSwitchRelay _bedroomLights;

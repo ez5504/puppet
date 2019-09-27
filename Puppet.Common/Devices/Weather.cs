@@ -2,6 +2,7 @@
 using Puppet.Common.Services;
 using System.Threading.Tasks;
 using Puppet.Common.StateManagement;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Puppet.Common.Devices
@@ -10,9 +11,9 @@ namespace Puppet.Common.Devices
     {
         public IWeatherData Data;
 
-        public Weather(IWeatherData data, HomeAutomationPlatform hub, string id) : base(hub, id)
+        public Weather(IServiceProvider serviceProvider, HomeAutomationPlatform hub, string id) : base(hub, id)
         {
-            Data = data;
+            Data = serviceProvider.GetService<IWeatherData>();
         }
 
         public async Task<bool> IsDaytime()

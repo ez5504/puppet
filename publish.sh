@@ -1,5 +1,4 @@
 #!/bin/bash
-@echo off
 
 echo Deploying Executive...
 scp pi@192.168.1.160:/home/pi/puppet/appsettings.json ./

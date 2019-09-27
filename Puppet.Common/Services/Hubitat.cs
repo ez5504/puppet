@@ -31,8 +31,8 @@ namespace Puppet.Common.Services
         readonly HttpClient _client;
         SunriseAndSunset _sunriseAndSunset;
 
-        public Hubitat(IConfiguration configuration, HttpClient httpClient)
-            : base(configuration)
+        public Hubitat(IConfiguration configuration, HttpClient httpClient, IServiceProvider serviceProvider)
+            : base(configuration, serviceProvider)
         {
             HubitatOptions hubitatOptions = configuration.GetSection("Hubitat").Get<HubitatOptions>();
 

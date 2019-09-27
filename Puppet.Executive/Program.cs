@@ -27,8 +27,6 @@ namespace Puppet.Executive
 
         static AutomationTaskManager _taskManager;
         static HomeAutomationPlatform _hub;
-        static IMqttService _mqtt;
-        static TelemetryClient _telemetryClient;
 
         public static async Task Main(string[] args)
         {
@@ -38,11 +36,6 @@ namespace Puppet.Executive
                 .AddJsonFile(APPSETTINGS_FILENAME, optional: false, reloadOnChange: true)
                 .Build();
 
-            var provider = new ServiceCollection()
-                .AddMemoryCache()
-                .AddSingleton<IWeatherData, WeatherData>()
-                .BuildServiceProvider();
-
             // Create an HttpClient that doesn't validate the server certificate
             HttpClientHandler customHttpClientHandler = new HttpClientHandler
             {
@@ -51,22 +44,10 @@ namespace Puppet.Executive
 
             TelemetryConfiguration telemetryConfig = AppInsights.GetTelemetryConfiguration(configuration);
 
-            using (AppInsights.InitializeDependencyTracking(telemetryConfig))
-            using (AppInsights.InitializePerformanceTracking(telemetryConfig))
             using (HttpClient _httpClient = new HttpClient(customHttpClientHandler))
             {
-                _telemetryClient = new TelemetryClient(telemetryConfig);
-
                 // Abstraction representing the home automation system
-                _hub = new Hubitat(configuration, _httpClient);
-
-                // Start the MQTT service, if applicable.
-                MqttOptions mqttOptions = configuration.GetSection("MQTT").Get<MqttOptions>();
-                if (mqttOptions?.Enabled ?? false)
-                {
-                    _mqtt = new MqttService(await MqttClientFactory.GetClient(mqttOptions), mqttOptions, _hub);
-                    await _mqtt.Start();
-                }
+                _hub = new Hubitat(configuration, _httpClient, AutomationFactory.ServiceProvider);
 
                 // Class to manage long-running tasks
                 _taskManager = new AutomationTaskManager(configuration);
@@ -89,20 +70,12 @@ namespace Puppet.Executive
         private static void Hub_AutomationEvent(object sender, Common.Events.AutomationEventEventArgs e)
         {
             var evt = e.HubEvent;
-            _telemetryClient.TrackEvent("Hub Event", evt.GetDictionary());
 
             Task.Run(() => StartRelevantAutomationHandlers(evt));
-            Task.Run(() => SendEventToMqtt(evt));
-        }
-
-        private static void SendEventToMqtt(HubEvent evt)
-        {
-            _mqtt?.SendEventToMqttAsync(evt);
         }
 
         private static void StartRelevantAutomationHandlers(HubEvent evt)
         {
-            Console.WriteLine($"Starting auto handlers");
             // Get a reference to the automation
             var automations = AutomationFactory.GetAutomations(evt, _hub);
 
@@ -119,31 +92,18 @@ namespace Puppet.Executive
                     var startedTime = DateTime.Now;
                     Console.WriteLine($"{DateTime.Now} {automation} event: {evt.DescriptionText}");
 
-                    using (var operation = _telemetryClient.StartOperation<RequestTelemetry>(automation.ToString()))
+                    try
                     {
-                        _telemetryClient.TrackEvent("Automation Started", evt.GetDictionary());
-
-                        try
-                        {
-                            // This runs the Handle method on the automation class
-                            await automation.Handle(cts.Token);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            TimeSpan executionTime = DateTime.Now - startedTime;
-                            _telemetryClient.TrackEvent($"Automation Cancelled",
-                                new Dictionary<string, string>()
-                                {
-                                    {"WaitTime", executionTime.TotalSeconds.ToString()},
-                                });
-                            Console.WriteLine($"{DateTime.Now} {automation} event from {startedTime} cancelled.");
-                        }
-                        catch (Exception ex)
-                        {
-                            operation.Telemetry.Success = false;
-                            _telemetryClient.TrackException(ex);
-                            Console.WriteLine($"{DateTime.Now} {automation} {ex} {ex.Message}");
-                        }
+                        // This runs the Handle method on the automation class
+                        await automation.Handle(cts.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Console.WriteLine($"{DateTime.Now} {automation} event from {startedTime} cancelled.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{DateTime.Now} {automation} {ex} {ex.Message}");
                     }
                 };
 

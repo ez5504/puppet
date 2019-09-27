@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Puppet.Common.StateManagement;
 
 namespace Puppet.Executive.Automation
 {
@@ -16,9 +18,15 @@ namespace Puppet.Executive.Automation
 
         private static IMemoryCache MemoryCache;
 
+        public static IServiceProvider ServiceProvider;
+
         static AutomationFactory() 
         {
             MemoryCache = new MemoryCache(new MemoryCacheOptions());
+            ServiceProvider = new ServiceCollection()
+                .AddMemoryCache()
+                .AddSingleton<IWeatherData, WeatherData>()
+                .BuildServiceProvider();
         }
 
         /// <summary>
@@ -37,17 +45,33 @@ namespace Puppet.Executive.Automation
              *                  and the attribute also names a Capability that matches the device that caused the event
              *          and the count of the matching trigger attributes is greater than 0
              */
+
             
-            IEnumerable<Type> assemblies = MemoryCache.GetOrCreate("Assemblies", entry => {
-                return Assembly.LoadFrom(_automationAssembly).GetTypes()
-                    .Where(t => typeof(IAutomation).IsAssignableFrom(t));
+            Dictionary<string, List<Type>> assemblies = MemoryCache.GetOrCreate("Assemblies", entry => 
+            {
+                Dictionary<string, List<Type>> automationDictionary = new Dictionary<string, List<Type>>();
+                
+                var temp = Assembly.LoadFrom(_automationAssembly).GetTypes()
+                        .Where(t => typeof(IAutomation).IsAssignableFrom(t));
+                foreach(var type in temp)
+                {
+                    var keys = type.GetCustomAttributes<TriggerDeviceAttribute>().Select(t => $"{hub.LookupDeviceId(t.DeviceMappedName)}|{t.Capability.ToString().ToLower()}");
+                    foreach(var key in keys)
+                    {
+                        if(automationDictionary.ContainsKey(key))
+                        {
+                            automationDictionary[key].Add(type);
+                        }
+                        else 
+                        {
+                            automationDictionary.Add(key, new List<Type> { type });
+                        }
+                    }
+                }
+                return automationDictionary;
             });
-            IEnumerable<Type> typeCollection = assemblies
-                .Where(t => (t.GetCustomAttributes<TriggerDeviceAttribute>() 
-                        .Where(a => hub.LookupDeviceId(a.DeviceMappedName) == evt.DeviceId &&
-                            a.Capability.ToString().ToLower() == evt.Name))
-                    .Count() > 0);
-            foreach (Type automation in typeCollection)
+
+            foreach (Type automation in assemblies[$"{evt.DeviceId}|{evt.Name}"])
             {
                 var thing = Activator.CreateInstance(automation, new Object[] { hub, evt });
                 if (thing is IAutomation automationSource)

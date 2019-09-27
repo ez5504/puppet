@@ -26,6 +26,7 @@ namespace Puppet.Common.Services
         public TelemetryClient TelemetryClient { get; }
         public ConcurrentDictionary<string, object> StateBag { get; set; }
         public IConfiguration Configuration { get; set; }
+        private readonly IServiceProvider serviceProvider;
         public abstract Task DoAction(IDevice device, string action, string[] args = null);
         public abstract Task SendNotification(string notificationText);
         
@@ -33,7 +34,7 @@ namespace Puppet.Common.Services
 
         public event EventHandler<AutomationEventEventArgs> AutomationEvent;
 
-        public HomeAutomationPlatform(IConfiguration configuration)
+        public HomeAutomationPlatform(IConfiguration configuration, IServiceProvider serviceProvider)
         {
             this.DeviceMap = JObject.Parse(
                 File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), DEVICE_FILENAME)));
@@ -41,6 +42,8 @@ namespace Puppet.Common.Services
             Configuration = configuration;
 
             TelemetryClient = AppInsights.GetTelemetryClient(configuration);
+
+            this.serviceProvider = serviceProvider;
         }
 
         public abstract Task<SunriseAndSunset> GetSunriseAndSunset();
@@ -70,6 +73,10 @@ namespace Puppet.Common.Services
 
         public async Task<T> GetDeviceById<T>(string deviceId)
         {
+            if(typeof(T) == typeof(Weather)) 
+            {
+                return await Task.FromResult((T)Activator.CreateInstance(typeof(T), new Object[] { serviceProvider, this, deviceId }));
+            }
             return await Task.FromResult((T)Activator.CreateInstance(typeof(T), new Object[] { this, deviceId }));
         }
 
