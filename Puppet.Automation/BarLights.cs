@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace Puppet.Automation
 {
-    [TriggerDevice("Contact.BarDoor1", Capability.Contact)]
+    [TriggerDevice("Contact.BarDoor-Left", Capability.Contact)]
+    [TriggerDevice("Contact.BarDoor-Right", Capability.Contact)]
     public class BarLights : AutomationBase
     {
         SwitchRelay _barOutlet;

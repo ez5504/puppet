@@ -1,7 +1,8 @@
 {
   "Contact": {
-    "BarDoor1": "33",
-    "Washer": "59"
+    "BarDoor-Right": 33,
+    "BarDoor-Left": 97,
+    "Washer": 59
   },
   "Outlet": {
     "Bar": 34
@@ -10,24 +11,24 @@
     "Basement": 66
   },
   "Lock": {
-    "FrontDoorDeadbolt": "67"
+    "FrontDoorDeadbolt": 67
   },
   "Speaker": {
-    "Alexa-LivingRoom": "72",
-    "Alexa-Bedroom": "73"
+    "Alexa-LivingRoom": 72,
+    "Alexa-Bedroom": 73
   },
   "Switch": {
-    "LivingRoom": "76",
-    "LivingRoom2": "1",
-    "BasementFurnace": "35",
-    "BasementWasher": "65",
-    "Bedroom": "75",
-    "Office": "77"
+    "LivingRoom": 76,
+    "LivingRoom2": 1,
+    "BasementFurnace": 35,
+    "BasementWasher": 65,
+    "Bedroom": 75,
+    "Office": 77
   },
   "Button": {
-    "LivingRoomRemote": "70"
+    "LivingRoomRemote": 70
   },
   "Misc": {
-    "Weather": "71"
+    "Weather": 71
   }
 }

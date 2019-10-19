@@ -88,13 +88,13 @@ namespace Puppet.Common.Devices
         private void UpdateCachedData()
         {
             Data.CurrentCondition = GetState()["condition_text"];
-            Data.IsDaytime = bool.Parse(GetState()["is_day"]);
-            Data.SunriseTime = DateTime.Parse(GetState()["localSunrise"]);
-            Data.SunsetTime = DateTime.Parse(GetState()["localSunset"]);
-            Data.TemperatureFeelsLike = decimal.Parse(GetState()["feelsLike"]);
-            Data.TemperatureActual = decimal.Parse(GetState()["temperature"]);
-            Data.Humidity = decimal.Parse(GetState()["humidity"]);
-            Data.LastUpdated = DateTime.Parse(GetState()["last_poll_Forecast"]);
+            Data.IsDaytime = GetState("is_day", Convert.ToBoolean);
+            Data.SunriseTime = GetState("localSunrise", DateTime.Parse);
+            Data.SunsetTime = GetState("localSunset", DateTime.Parse);
+            Data.TemperatureFeelsLike = GetState("feelsLike", decimal.Parse);
+            Data.TemperatureActual = GetState("temperature", decimal.Parse);
+            Data.Humidity = GetState("humidity", decimal.Parse);
+            Data.LastUpdated = GetState("last_poll_Forecast", DateTime.Parse);
         }
     }
 }

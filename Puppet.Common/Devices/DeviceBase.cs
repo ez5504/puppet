@@ -36,6 +36,15 @@ namespace Puppet.Common.Devices
             return _state;
         }
 
+        internal T GetState<T>(string key, Func<string, T> conversion = null) 
+        {
+            if(GetState().TryGetValue(key, out var value))
+            {
+                return conversion == null ? value : conversion(value);
+            }
+            return default(T);
+        }
+
         public async Task DoAction(string command, string parameter = null)
         {
             string[] args = null;
