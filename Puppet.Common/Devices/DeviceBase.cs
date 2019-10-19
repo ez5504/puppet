@@ -36,11 +36,20 @@ namespace Puppet.Common.Devices
             return _state;
         }
 
-        internal T GetState<T>(string key, Func<string, T> conversion = null) 
+        internal string GetState(string key)
         {
             if(GetState().TryGetValue(key, out var value))
             {
-                return conversion == null ? value : conversion(value);
+                return value;
+            }
+            return string.Empty;
+        }
+
+        internal T GetState<T>(string key, Func<string, T> conversion) 
+        {
+            if(GetState().TryGetValue(key, out var value))
+            {
+                return conversion(value);
             }
             return default(T);
         }
