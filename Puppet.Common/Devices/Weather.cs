@@ -88,7 +88,7 @@ namespace Puppet.Common.Devices
         private void UpdateCachedData()
         {
             Data.CurrentCondition = GetState()["condition_text"];
-            Data.IsDaytime = GetState("is_day", Convert.ToBoolean);
+            Data.IsDaytime = Convert.ToBoolean(GetState("is_day", Convert.ToInt32));
             Data.SunriseTime = GetState("localSunrise", DateTime.Parse);
             Data.SunsetTime = GetState("localSunset", DateTime.Parse);
             Data.TemperatureFeelsLike = GetState("feelsLike", decimal.Parse);

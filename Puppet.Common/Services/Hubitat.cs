@@ -36,12 +36,12 @@ namespace Puppet.Common.Services
         {
             HubitatOptions hubitatOptions = configuration.GetSection("Hubitat").Get<HubitatOptions>();
 
-            _baseMakerApiAddress = $"https://{hubitatOptions.HubitatHostNameOrIp}/apps/api/{hubitatOptions.MakerApiAppId}/devices";
+            _baseMakerApiAddress = $"http://{hubitatOptions.HubitatHostNameOrIp}/apps/api/{hubitatOptions.MakerApiAppId}/devices";
             _accessToken = hubitatOptions.AccessToken;
-            _websocketUrl = $"wss://{hubitatOptions.HubitatHostNameOrIp}/eventsocket";
+            _websocketUrl = $"ws://{hubitatOptions.HubitatHostNameOrIp}/eventsocket";
             _client = httpClient;
 
-            _baseAuxAppAddress = $"https://{hubitatOptions.HubitatHostNameOrIp}/apps/api/{hubitatOptions.AuxAppId}"; 
+            _baseAuxAppAddress = $"http://{hubitatOptions.HubitatHostNameOrIp}/apps/api/{hubitatOptions.AuxAppId}"; 
             _auxAppAccessToken = hubitatOptions.AuxAppAccessToken;
             
             StateBag = new ConcurrentDictionary<string, object>();

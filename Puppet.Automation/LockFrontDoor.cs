@@ -38,7 +38,7 @@ namespace Puppet.Automation
             {
                 DateTime sunsetTime = await _weather.SunsetTime();
                 var currTime = DateTime.Now;
-                if(currTime > (sunsetTime.AddDays(-1.5)))
+                if(currTime > (sunsetTime.AddHours(-1.5)))
                 {
                     await _livingRoomLight.On();
                     await _livingRoomLight.SetBrightness(100);

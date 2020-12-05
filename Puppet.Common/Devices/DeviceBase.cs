@@ -49,7 +49,14 @@ namespace Puppet.Common.Devices
         {
             if(GetState().TryGetValue(key, out var value))
             {
-                return conversion(value);
+                try 
+                {
+                    return conversion(value);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine($"Failed to parse value at {key}:{value}\n{e.ToString()}");
+                }
             }
             return default(T);
         }
